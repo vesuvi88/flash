@@ -307,17 +307,16 @@ class DefaultFlashController<T> implements FlashController<T> {
 
   @override
   Future<void> dismiss([T? result]) {
-    assert(!_transitionCompleter.isCompleted, 'Cannot reuse a $runtimeType after disposing it.');
-    _dismissed = true;
+    if (_transitionCompleter.isCompleted) return Future.value();
+
     _result = result;
-    _removeLocalHistory();
-    _cancelTimer();
+    deactivate();
     return _controller.reverse();
   }
 
-  @protected
   void dispose() {
-    assert(!_transitionCompleter.isCompleted, 'Cannot dispose a $runtimeType twice.');
+    if (_transitionCompleter.isCompleted) return;
+
     deactivate();
     for (OverlayEntry entry in _overlayEntries) {
       entry.remove();
